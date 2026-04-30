@@ -47,7 +47,7 @@
 - 🧠 **Agent 決策循環**：內建工具（Shell、讀寫檔、網頁抓取含 SPA 渲染）的運作邏輯。 [詳見 L2-llm](./docs/features/llm/agent.md)
 - 🛡️ **指令安全守門**：如何透過 `setting.json` 攔截危險指令。 [詳見 L2-system](./docs/features/system/safety.md)
 - 🔌 **Skills 擴展**：如何為 Agent 注入自定義的領域能力。 [詳見 L2-tool](./docs/features/tool/skills.md)
-- 💾 **記憶架構**：Session 原文保留、超限壓縮、SQLite 歷史歸檔與自動過期機制。 [詳見 L2-memory](./docs/features/memory/session-memory.md)
+- 💾 **記憶架構**：Session 原文保留、超限壓縮、SQLite 歷史歸檔與 review/fact 分層整理。 [詳見 L2-memory](./docs/features/memory/session-memory.md)
 
 ---
 

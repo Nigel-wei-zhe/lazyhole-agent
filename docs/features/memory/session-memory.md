@@ -33,7 +33,7 @@
 
 路徑：`~/.lazyhole/memory.sqlite`（可用 `MEMORY_DB_PATH` 改路徑）。本地資料庫不進 git。
 
-表：`memory_archives`
+表：`memory_archives`、`memory_reviews`、`memory_facts`。欄位細節見 [schema.md](./schema.md)。
 
 | 欄位 | 說明 |
 |---|---|
@@ -44,6 +44,8 @@
 | `active_skill` / `category` | skill 與預留分類；`category` 目前可空 |
 | `summary` | LLM 產生的長期記憶摘要 |
 | `raw_chars` / `history_count` / `metadata_json` | 原始資料統計與擴充資訊 |
+
+每次新增 archive 時會同步建立 `memory_reviews.status=pending`，既有 archive 會在 DB 初始化時補建 pending review。整理後的有效長期記憶預計寫入 `memory_facts`，不直接修改 archive。
 
 ## Server 自動行為
 
@@ -129,6 +131,7 @@ TTL、`/memory clear`、`end_session` 觸發歸檔時會先回 Telegram 進度�
 | history 全量 vs 逐則截斷 | 全量直到安全上限 | 避免 500 字截斷破壞語意 |
 | 超限處理 | LLM 壓縮成 `summary` | 保留語意，控制 prompt |
 | 歷史保存 | SQLite 本地歸檔 | 可查詢、不進 git、避免 active session 無限保存 |
+| 記憶整理 | archive/review/fact 分層 | 原始封存可回溯；整理狀態與有效長期記憶分離 |
 | 分類 | `category` nullable | 先保留欄位，不依賴不穩定分類 |
 | locked schema | 自由 object、淺合併 | 跨 skill 通用，不預設欄位 |
 | 背景清理 | 無 | 懶式清理足夠，少一支常駐 timer |

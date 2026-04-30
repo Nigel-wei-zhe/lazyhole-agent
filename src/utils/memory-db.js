@@ -25,10 +25,43 @@ CREATE TABLE IF NOT EXISTS memory_archives (
   history_count INTEGER NOT NULL,
   metadata_json TEXT
 );
+CREATE TABLE IF NOT EXISTS memory_reviews (
+  archive_id INTEGER PRIMARY KEY,
+  chat_id TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'pending',
+  note TEXT,
+  tags TEXT,
+  reviewed_at TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  FOREIGN KEY (archive_id) REFERENCES memory_archives(id)
+);
+CREATE TABLE IF NOT EXISTS memory_facts (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  chat_id TEXT NOT NULL,
+  source_archive_id INTEGER,
+  content TEXT NOT NULL,
+  tags TEXT,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  deleted_at TEXT,
+  FOREIGN KEY (source_archive_id) REFERENCES memory_archives(id)
+);
 CREATE INDEX IF NOT EXISTS idx_memory_archives_chat_archived
   ON memory_archives(chat_id, archived_at DESC);
 CREATE INDEX IF NOT EXISTS idx_memory_archives_session
   ON memory_archives(session_id);
+CREATE INDEX IF NOT EXISTS idx_memory_reviews_chat_status
+  ON memory_reviews(chat_id, status, updated_at DESC);
+CREATE INDEX IF NOT EXISTS idx_memory_facts_chat_active
+  ON memory_facts(chat_id, deleted_at, updated_at DESC);
+CREATE INDEX IF NOT EXISTS idx_memory_facts_source_archive
+  ON memory_facts(source_archive_id);
+INSERT OR IGNORE INTO memory_reviews (
+  archive_id, chat_id, status, created_at, updated_at
+)
+SELECT id, chat_id, 'pending', archived_at, archived_at
+FROM memory_archives;
 `);
 }
 
@@ -58,6 +91,7 @@ function number(value) {
 
 function insertArchive(row) {
     ensureDb();
+    const now = new Date().toISOString();
     const sql = `
 INSERT INTO memory_archives (
   session_id, chat_id, user_id, started_at, ended_at, archived_at, trigger,
@@ -68,6 +102,11 @@ INSERT INTO memory_archives (
   ${quote(row.trigger)}, ${quote(row.activeSkill)}, ${quote(row.category)},
   ${quote(row.summary)}, ${number(row.rawChars)}, ${number(row.historyCount)},
   ${quote(row.metadataJson)}
+);
+INSERT INTO memory_reviews (
+  archive_id, chat_id, status, created_at, updated_at
+) VALUES (
+  last_insert_rowid(), ${quote(row.chatId)}, 'pending', ${quote(now)}, ${quote(now)}
 );
 SELECT last_insert_rowid() AS id;
 `;

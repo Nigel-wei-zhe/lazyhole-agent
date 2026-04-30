@@ -29,6 +29,7 @@
 
 ### memory
 - [**記憶系統 (Session + History)**](./features/memory/session-memory.md): 跨輪對話狀態、超限壓縮、SQLite 歷史歸檔、`remember` / `end_session` 工具、`/memory` 指令。
+- [**記憶資料表**](./features/memory/schema.md): `memory_archives`、`memory_reviews`、`memory_facts` 欄位與資料流。
 
 ### chat
 - [**功能總覽指令**](./features/chat/help.md): `/help` 顯示自然語言、`/run`、`/memory`、`/music` 功能入口。
